@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.redrd.calculadora_clase'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.redrd.calculadora_clase"
