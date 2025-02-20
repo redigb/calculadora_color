@@ -288,10 +288,11 @@ public class MainActivity extends AppCompatActivity {
                 return getString(R.string.addition);
             case RESTA:
                 return getString(R.string.substracion);
-            case DIVISION:
-                return getString(R.string.multiplicaton);
             case MULTIPLICACION:
+                return getString(R.string.multiplicaton);
+            case DIVISION:
                 return getString(R.string.division);
+
             default:
                 throw new IllegalArgumentException("Operador desconocido");
         }
