@@ -2,17 +2,21 @@ package com.redrd.calculadora_clase;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.redrd.calculadora_clase.databinding.ActivityMainBinding;
+import com.redrd.calculadora_clase.model.Constantes;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot()); // Establece la vista correcta
         EdgeToEdge.enable(this);
 
-        // verificarBotones();
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -167,39 +170,77 @@ public class MainActivity extends AppCompatActivity {
         currentOperador = operador;
     }
 
-    private void onIgualClicked(){
-        if (inputValue2 != null){
+    private void onIgualClicked() {
+        if (inputValue2 != null) {
             result = calcular();
-            ecuacion.setLength(0);
-            ecuacion.append(Constantes.ZERO);
-            updateResultOnDisplay(false);
-            inputValue1 = result;
+            if (result != null) {
+                ecuacion.setLength(0);
+                ecuacion.append(result);
+                updateResultOnDisplay(false);
+                inputValue1 = result;
+            }
             result = null;
             inputValue2 = null;
             currentOperador = null;
-        }else {
+        } else {
             ecuacion.setLength(0);
             ecuacion.append(Constantes.ZERO);
         }
     }
 
-    private Double calcular(){
-        if (currentOperador == null) throw new NullPointerException("currentOperador no puede ser nulo");
-        switch (currentOperador) {
-            case SUMA:
-                return getInputValue1() + getInputValue2();
-            case RESTA:
-                return getInputValue1() - getInputValue2();
-            case MULTIPLICACION:
-                return getInputValue1() * getInputValue2();
-            case DIVISION:
-                return getInputValue1() / getInputValue2();
-            default:
-                throw new IllegalArgumentException("Operador desconocido");
+    private Double calcular() {
+        if (currentOperador == null) {
+            mostrarError("⚠️ Error: No se ha seleccionado un operador.");
+            return null;
+        }
+        try {
+            double val1 = getInputValue1();
+            double val2 = getInputValue2();
+
+            switch (currentOperador) {
+                case SUMA:
+                    return val1 + val2;
+
+                case RESTA:
+                    return val1 - val2;
+
+                case MULTIPLICACION:
+                    return val1 * val2;
+
+                case DIVISION:
+                    if (val2 == 0.0) {
+                        mostrarError("❌ No se puede dividir por cero.");
+                        return null; // Retornar null para evitar errores
+                    }
+                    return val1 / val2;
+
+                default:
+                    mostrarError("❌ Error: Operador desconocido.");
+                    return null;
+            }
+
+        } catch (Exception e) {
+            mostrarError("🚨 Error inesperado en el cálculo.");
+            Log.e("MainActivity", "Error en cálculo", e);
+            return null;
         }
     }
 
+    private void mostrarError(String mensaje) {
+        binding.textInput.setText(mensaje);
+        binding.textEquation.setText(null);
+        textViewErrorInput(mensaje);
+    }
+
+    private void textViewErrorInput(String mensaje) {
+        TextView textInput = findViewById(R.id.textInput);
+        textInput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        textInput.setTextColor(ContextCompat.getColor(this, R.color.error_text));
+        textInput.setText(mensaje);
+    }
+
     private void onDecimalPunto(){
+        normalizedTextInput();
         if (ecuacion.toString().contains(Constantes.PUNTO_DECIMAL)) return;
         ecuacion.append(Constantes.PUNTO_DECIMAL);
         setInput();
@@ -207,7 +248,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onZeroClicked(){
-        if (ecuacion.toString().startsWith(Constantes.ZERO)) return;
+        normalizedTextInput();
+        setInput();
+        updateInputDisplay();
+        if (ecuacion.length() == 1 && ecuacion.toString().equals(Constantes.ZERO)) return;
         onNumberClicked(Constantes.ZERO);
     }
 
@@ -231,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onNumberClicked(String numberText){
+        normalizedTextInput();
         if (ecuacion.toString().startsWith(Constantes.ZERO)) {
             ecuacion.deleteCharAt(0);
         } else if (ecuacion.toString().startsWith(Constantes.MINUS + Constantes.ZERO)) {
@@ -270,8 +315,6 @@ public class MainActivity extends AppCompatActivity {
         ));
     }
 
-
-
     private void updateInputDisplay() {
         if (result == null) { binding.textEquation.setText(null);}
         binding.textInput.setText(ecuacion);
@@ -296,6 +339,13 @@ public class MainActivity extends AppCompatActivity {
             default:
                 throw new IllegalArgumentException("Operador desconocido");
         }
+    }
+
+    private void normalizedTextInput(){
+        TextView textInput = findViewById(R.id.textInput);
+        textInput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 48);
+        textInput.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
+        textInput.setText(String.valueOf(result));
     }
 
     private String getFormatDisplayValue(Double value){
