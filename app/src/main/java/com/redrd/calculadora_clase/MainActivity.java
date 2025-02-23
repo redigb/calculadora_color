@@ -16,10 +16,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.redrd.calculadora_clase.databinding.ActivityMainBinding;
-import com.redrd.calculadora_clase.model.Constantes;
+import com.redrd.calculadora_clase.utilidades.Constantes;
+import com.redrd.calculadora_clase.utilidades.Operador;
 
 public class MainActivity extends AppCompatActivity {
-
     private ActivityMainBinding binding;
     private Double inputValue1 = 0.0;
     private Double inputValue2 = null;
@@ -31,9 +31,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot()); // Establece la vista correcta
+        setContentView(binding.getRoot()); // Establece la vista correcta!
         EdgeToEdge.enable(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -41,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         setListenerLa();
         setNightModeIndicator();
     }
+
     private void setListenerLa() {
         // Acortacion por funcion lambda
         for (Button button : getNumericButtons()) {
@@ -209,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case DIVISION:
                     if (val2 == 0.0) {
-                        mostrarError("❌ No se puede dividir por cero.");
+                        mostrarError("❌ No se puede dividir entre cero.");
                         return null; // Retornar null para evitar errores
                     }
                     return val1 / val2;
@@ -358,9 +357,5 @@ public class MainActivity extends AppCompatActivity {
             return value.toString();
         }
     }
-
-    public enum Operador{
-        SUMA, RESTA, DIVISION, MULTIPLICACION
-    }
-
 }
+

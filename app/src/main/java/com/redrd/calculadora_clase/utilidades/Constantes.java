@@ -1,4 +1,4 @@
-package com.redrd.calculadora_clase.model;
+package com.redrd.calculadora_clase.utilidades;
 
 public class Constantes {
     public static final String PUNTO_DECIMAL = ".";
